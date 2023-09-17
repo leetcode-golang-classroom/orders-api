@@ -16,7 +16,7 @@ type App struct {
 
 func New() *App {
 	app := &App{
-		rdb: redis.NewClient(&redis.Options{Password: Config.RedisPasswd}),
+		rdb: redis.NewClient(&redis.Options{Password: Config.RedisPasswd, Addr: Config.RedisAddr}),
 	}
 	app.loadRoutes()
 	return app
