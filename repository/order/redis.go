@@ -43,7 +43,6 @@ var ErrNotExists = errors.New("order does not exist")
 
 func (r *RedisRepo) FindById(ctx context.Context, id uint64) (models.Order, error) {
 	key := orderIdKey(id)
-
 	value, err := r.Client.Get(ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return models.Order{}, ErrNotExists
@@ -85,7 +84,7 @@ func (r *RedisRepo) Update(ctx context.Context, order models.Order) error {
 		return fmt.Errorf("failed to encode order: %w", err)
 	}
 	key := orderIdKey(order.OrderId)
-	err = r.Client.SetNX(ctx, key, string(data), 0).Err()
+	err = r.Client.SetXX(ctx, key, string(data), 0).Err()
 	if errors.Is(err, redis.Nil) {
 		return ErrNotExists
 	} else if err != nil {
@@ -95,8 +94,8 @@ func (r *RedisRepo) Update(ctx context.Context, order models.Order) error {
 }
 
 type FindAllPage struct {
-	Size   uint
-	Offset uint
+	Size   uint64
+	Offset uint64
 }
 type FindResult struct {
 	Orders []models.Order
